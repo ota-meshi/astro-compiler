@@ -11,7 +11,7 @@ import (
 	"sync"
 	"syscall/js"
 
-	"github.com/norunners/vert"
+	"github.com/withastro/compiler/cmd/astro-wasm/vert2"
 	astro "github.com/withastro/compiler/internal"
 	"github.com/withastro/compiler/internal/printer"
 	t "github.com/withastro/compiler/internal/t"
@@ -165,7 +165,7 @@ func Parse() interface{} {
 		}
 		result := printer.PrintToJSON(source, doc, parseOptions)
 
-		return vert.ValueOf(ParseResult{
+		return vert2.ValueOf(ParseResult{
 			AST: string(result.Output),
 		})
 	})
@@ -248,7 +248,7 @@ func Transform() interface{} {
 				case "inline":
 					value = createInlineSourceMap(source, result, css, &scripts, transformOptions)
 				default:
-					value = vert.ValueOf(TransformResult{
+					value = vert2.ValueOf(TransformResult{
 						CSS:     css,
 						Code:    string(result.Output),
 						Map:     "",
@@ -287,7 +287,7 @@ func createSourceMapString(source string, result printer.PrintResult, transformO
 }
 
 func createExternalSourceMap(source string, result printer.PrintResult, css []string, scripts *[]HoistedScript, transformOptions transform.TransformOptions) interface{} {
-	return vert.ValueOf(TransformResult{
+	return vert2.ValueOf(TransformResult{
 		CSS:     css,
 		Code:    string(result.Output),
 		Map:     createSourceMapString(source, result, transformOptions),
@@ -298,7 +298,7 @@ func createExternalSourceMap(source string, result printer.PrintResult, css []st
 func createInlineSourceMap(source string, result printer.PrintResult, css []string, scripts *[]HoistedScript, transformOptions transform.TransformOptions) interface{} {
 	sourcemapString := createSourceMapString(source, result, transformOptions)
 	inlineSourcemap := `//# sourceMappingURL=data:application/json;charset=utf-8;base64,` + base64.StdEncoding.EncodeToString([]byte(sourcemapString))
-	return vert.ValueOf(TransformResult{
+	return vert2.ValueOf(TransformResult{
 		CSS:     css,
 		Code:    string(result.Output) + "\n" + inlineSourcemap,
 		Map:     "",
@@ -309,7 +309,7 @@ func createInlineSourceMap(source string, result printer.PrintResult, css []stri
 func createBothSourceMap(source string, result printer.PrintResult, css []string, scripts *[]HoistedScript, transformOptions transform.TransformOptions) interface{} {
 	sourcemapString := createSourceMapString(source, result, transformOptions)
 	inlineSourcemap := `//# sourceMappingURL=data:application/json;charset=utf-8;base64,` + base64.StdEncoding.EncodeToString([]byte(sourcemapString))
-	return vert.ValueOf(TransformResult{
+	return vert2.ValueOf(TransformResult{
 		CSS:     css,
 		Code:    string(result.Output) + "\n" + inlineSourcemap,
 		Map:     sourcemapString,
